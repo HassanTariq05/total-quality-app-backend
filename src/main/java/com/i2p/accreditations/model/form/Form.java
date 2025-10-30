@@ -1,8 +1,8 @@
-package com.i2p.accreditations.model.chapter;
+package com.i2p.accreditations.model.form;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.i2p.accreditations.model.accreditation.Accreditation;
+import com.i2p.accreditations.model.chapter.Chapter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,8 +13,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "chapters")
-public class Chapter {
+@Table(name = "forms")
+public class Form {
 
     @Id
     @GeneratedValue
@@ -33,14 +33,14 @@ public class Chapter {
     private String status;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "accreditation_id", referencedColumnName = "id")
-    @JsonIgnoreProperties({"chapters"})
-    private Accreditation accreditation;
+    @JoinColumn(name = "chapter_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({"forms"})
+    private Chapter chapter;
 
 
-    public Chapter() {}
+    public Form() {}
 
-    public Chapter(String title, String description, String status) {
+    public Form(String title, String description, String status) {
         this.title = title;
         this.description = description;
         this.status = status;

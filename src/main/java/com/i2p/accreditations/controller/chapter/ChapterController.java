@@ -1,7 +1,9 @@
 package com.i2p.accreditations.controller.chapter;
 
+import com.i2p.accreditations.dto.ChapterDto;
 import com.i2p.accreditations.model.chapter.Chapter;
 import com.i2p.accreditations.service.chapter.ChapterService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -13,18 +15,19 @@ public class ChapterController {
 
     private final ChapterService service;
 
+    @Autowired
     public ChapterController(ChapterService service) {
         this.service = service;
     }
 
     @PostMapping
-    public ResponseEntity<Chapter> create(@RequestBody Chapter chapter) {
-        return ResponseEntity.ok(service.createChapter(chapter));
+    public ResponseEntity<Chapter> create(@RequestBody ChapterDto chapterDto) {
+        return ResponseEntity.ok(service.createChapter(chapterDto));
     }
 
-    @GetMapping
-    public ResponseEntity<List<Chapter>> getAll() {
-        return ResponseEntity.ok(service.getAllChapters());
+    @GetMapping("/getAllByAccreditationId/{id}")
+    public ResponseEntity<List<Chapter>> getAllByAccreditationId(@PathVariable("id") UUID accreditationId) {
+        return ResponseEntity.ok(service.getAllChapters(accreditationId));
     }
 
     @GetMapping("/{id}")

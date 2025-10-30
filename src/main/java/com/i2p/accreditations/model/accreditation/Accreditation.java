@@ -1,9 +1,13 @@
 package com.i2p.accreditations.model.accreditation;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.i2p.accreditations.model.chapter.Chapter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 import java.util.UUID;
 
 @Entity
