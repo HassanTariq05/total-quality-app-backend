@@ -3,6 +3,7 @@ package com.i2p.accreditations.controller.form;
 import com.i2p.accreditations.dto.FormDto;
 import com.i2p.accreditations.model.form.Form;
 import com.i2p.accreditations.model.formFormat.FormFormat;
+import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.form.FormService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@ProtectedEndpoint
 @RequestMapping("/api/forms")
 public class FormController {
 

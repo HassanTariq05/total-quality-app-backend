@@ -2,6 +2,7 @@ package com.i2p.accreditations.controller.checklist;
 
 import com.i2p.accreditations.dto.ChecklistDto;
 import com.i2p.accreditations.model.checklist.Checklist;
+import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.checklist.ChecklistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@ProtectedEndpoint
 @RequestMapping("/api/checklists")
 public class ChecklistController {
 

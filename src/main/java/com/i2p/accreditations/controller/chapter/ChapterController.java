@@ -2,6 +2,7 @@ package com.i2p.accreditations.controller.chapter;
 
 import com.i2p.accreditations.dto.ChapterDto;
 import com.i2p.accreditations.model.chapter.Chapter;
+import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.chapter.ChapterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@ProtectedEndpoint
 @RequestMapping("/api/chapters")
 public class ChapterController {
 

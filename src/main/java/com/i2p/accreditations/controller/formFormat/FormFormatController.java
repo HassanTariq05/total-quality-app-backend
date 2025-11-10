@@ -2,6 +2,7 @@ package com.i2p.accreditations.controller.formFormat;
 
 import com.i2p.accreditations.dto.FormFormatDto;
 import com.i2p.accreditations.model.formFormat.FormFormat;
+import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.formFormat.FormFormatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@ProtectedEndpoint
 @RequestMapping("/api/formFormats")
 public class FormFormatController {
 

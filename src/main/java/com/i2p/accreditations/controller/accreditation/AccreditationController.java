@@ -1,8 +1,10 @@
 package com.i2p.accreditations.controller.accreditation;
 
 import com.i2p.accreditations.model.accreditation.Accreditation;
+import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.accreditation.AccreditationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/accreditations")
+@ProtectedEndpoint
 public class AccreditationController {
 
     private final AccreditationService service;
