@@ -35,10 +35,10 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors() // ✅ VERY IMPORTANT
+                .cors()
                 .and()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/api/test/hello").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

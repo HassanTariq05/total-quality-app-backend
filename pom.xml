@@ -10,7 +10,8 @@
 	</parent>
 	<groupId>com.i2p</groupId>
 	<artifactId>accreditations</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
+	<packaging>war</packaging>
 	<name>accreditations</name>
 	<description>Accreditations project for Hospitals</description>
 	<url/>
@@ -128,6 +129,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<mainClass>com.i2p.accreditations.AccreditationsApplication</mainClass>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
