@@ -2,9 +2,13 @@ package com.i2p.accreditations.controller.checklist;
 
 import com.i2p.accreditations.dto.ChecklistDto;
 import com.i2p.accreditations.model.checklist.Checklist;
+import com.i2p.accreditations.model.form.Form;
 import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.checklist.ChecklistService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
         import java.util.List;
@@ -28,8 +32,13 @@ public class ChecklistController {
     }
 
     @GetMapping("/getAllByChapterId/{id}")
-    public ResponseEntity<List<Checklist>> getAllByChapterId(@PathVariable("id") UUID chapterId) {
-        return ResponseEntity.ok(service.getAllChecklists(chapterId));
+    public ResponseEntity<Page<Checklist>> getAllByChapterId(
+            @PathVariable("id") UUID chapterId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(service.getAllChecklists(chapterId, pageable));
     }
 
     @GetMapping("/{id}")

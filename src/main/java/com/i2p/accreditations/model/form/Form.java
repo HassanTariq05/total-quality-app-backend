@@ -3,6 +3,8 @@ package com.i2p.accreditations.model.form;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.i2p.accreditations.model.accreditation.Accreditation;
 import com.i2p.accreditations.model.chapter.Chapter;
+import com.i2p.accreditations.model.formFormat.FormFormat;
+import com.i2p.accreditations.model.formSubmission.FormSubmission;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +16,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "forms")
+@JsonIgnoreProperties({"formFormats", "submissions"})
 public class Form {
 
     @Id
@@ -37,6 +40,13 @@ public class Form {
     @JsonIgnoreProperties({"forms"})
     private Chapter chapter;
 
+    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"form"})
+    private java.util.List<FormFormat> formFormats = new java.util.ArrayList<>();
+
+    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"form"})
+    private java.util.List<FormSubmission> submissions = new java.util.ArrayList<>();
 
     public Form() {}
 
@@ -46,4 +56,5 @@ public class Form {
         this.status = status;
     }
 }
+
 

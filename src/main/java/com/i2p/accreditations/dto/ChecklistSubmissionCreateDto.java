@@ -10,4 +10,6 @@ public class ChecklistSubmissionCreateDto {
     private UUID checklistId;
     private UUID organisationId;
     private String data;
+    private String name;
+    private String description;
 }

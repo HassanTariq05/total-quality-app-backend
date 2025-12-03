@@ -8,6 +8,8 @@ import com.i2p.accreditations.repository.chapter.ChapterRepository;
 import com.i2p.accreditations.repository.formFormat.FormFormatRepository;
 import com.i2p.accreditations.repository.form.FormRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,8 +51,8 @@ public class FormService {
         return repository.save(form);
     }
 
-    public List<Form> getAllForms(UUID chapterId) {
-        return repository.findByChapterId(chapterId);
+    public Page<Form> getAllForms(UUID chapterId, Pageable pageable) {
+        return repository.findByChapterId(chapterId, pageable);
     }
     public Optional<Form> getFormById(UUID id) {
         return repository.findByIdWithChapter(id);

@@ -27,9 +27,14 @@ public class FormFormat {
     @Column(name = "format", columnDefinition = "TEXT")
     private String format;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    /*@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "form_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"form_format"})
+    private Form form;*/
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "form_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({"formFormats", "submissions"})
     private Form form;
 
     public FormFormat() {}

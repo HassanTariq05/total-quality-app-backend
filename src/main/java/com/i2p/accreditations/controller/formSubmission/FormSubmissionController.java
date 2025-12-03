@@ -1,15 +1,13 @@
 package com.i2p.accreditations.controller.formSubmission;
 
-import com.i2p.accreditations.dto.FormSubmissionCreateDto;
-import com.i2p.accreditations.dto.FormSubmissionResponseDto;
-import com.i2p.accreditations.dto.OrganisationDto;
-import com.i2p.accreditations.dto.UserDto;
+import com.i2p.accreditations.dto.*;
 import com.i2p.accreditations.model.access.User;
 import com.i2p.accreditations.model.formSubmission.FormSubmission;
 import com.i2p.accreditations.model.organisation.Organisation;
 import com.i2p.accreditations.repository.access.UserRepository;
 import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.formSubmission.FormSubmissionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,18 +38,11 @@ public class FormSubmissionController {
         User submittedBy = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow();
 
-        // Check if a submission already exists for this form + organisation
-        boolean exists = service.existsByFormAndOrganisation(dto.getFormId(), dto.getOrganisationId());
-        if (exists) {
-            return ResponseEntity.status(409).body(
-                    Map.of("success", false, "message", "Submission already exists for this organisation")
-            );
-        }
-
         FormSubmission submission = service.createFormSubmission(dto, submittedBy);
         FormSubmissionResponseDto response = mapToDto(submission);
         return ResponseEntity.ok(response);
     }
+
 
 
     private FormSubmissionResponseDto mapToDto(FormSubmission submission) {
@@ -87,29 +78,127 @@ public class FormSubmissionController {
         return ResponseEntity.ok(service.getAllFormSubmissions());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FormSubmission> getById(@PathVariable UUID id) {
-        return service.getFormSubmissionById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/getBySubmissionId/{submissionId}")
+    public ResponseEntity<?> getById(@PathVariable UUID submissionId) {
+        try {
+            FormSubmission submission = service.getBySubmissionId(submissionId);
+
+            if (submission == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("FormSubmission not found for id: " + submissionId);
+            }
+
+            GetFormSubmissionDto dto = mapToSingleDto(submission);
+
+            return ResponseEntity.ok(dto);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred.");
+        }
     }
 
+
+
     @GetMapping("organisationId/{organisationId}/formId/{formId}")
-    public ResponseEntity<FormSubmissionResponseDto> getByOrganisationAndForm(
+    public ResponseEntity<List<FormSubmissionListDto>> getByOrganisationAndForm(
             @PathVariable UUID organisationId,
             @PathVariable UUID formId
     ) {
-        return service.getByOrganisationAndForm(organisationId, formId)
+        List<FormSubmission> submissions = service.getByOrganisationAndForm(organisationId, formId);
+
+        if (submissions.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<FormSubmissionListDto> dtoList = submissions.stream()
+                .map(this::mapToListDto)
+                .toList();
+
+        return ResponseEntity.ok(dtoList);
+    }
+
+
+    private FormSubmissionListDto mapToListDto(FormSubmission submission) {
+        FormSubmissionListDto dto = new FormSubmissionListDto();
+        dto.setId(submission.getId());
+        dto.setName(submission.getName());
+        dto.setDescription(submission.getDescription());
+        dto.setSubmittedAt(submission.getSubmittedAt());
+
+        Organisation org = submission.getOrganisation();
+        if (org != null) {
+            OrganisationDto orgDto = new OrganisationDto();
+            orgDto.setId(org.getId());
+            orgDto.setName(org.getName());
+            orgDto.setStatus(org.getStatus());
+            dto.setOrganisation(orgDto);
+        }
+
+        User user = submission.getSubmittedBy();
+        if (user != null) {
+            UserDto userDto = new UserDto();
+            userDto.setId(user.getId());
+            userDto.setName(user.getName());
+            userDto.setEmail(user.getEmail());
+            dto.setSubmittedBy(userDto);
+        }
+
+        return dto;
+    }
+
+    private GetFormSubmissionDto mapToSingleDto(FormSubmission submission) {
+        GetFormSubmissionDto dto = new GetFormSubmissionDto();
+        dto.setId(submission.getId());
+        dto.setName(submission.getName());
+        dto.setData(submission.getData());
+        dto.setDescription(submission.getDescription());
+        dto.setSubmittedAt(submission.getSubmittedAt());
+        dto.setFormId(submission.getForm().getId());
+
+        Organisation org = submission.getOrganisation();
+        if (org != null) {
+            OrganisationDto orgDto = new OrganisationDto();
+            orgDto.setId(org.getId());
+            orgDto.setName(org.getName());
+            orgDto.setStatus(org.getStatus());
+            dto.setOrganisation(orgDto);
+        }
+
+        User user = submission.getSubmittedBy();
+        if (user != null) {
+            UserDto userDto = new UserDto();
+            userDto.setId(user.getId());
+            userDto.setName(user.getName());
+            userDto.setEmail(user.getEmail());
+            dto.setSubmittedBy(userDto);
+        }
+
+        return dto;
+    }
+
+
+    @GetMapping("organisationId/{organisationId}/formId/{formId}/submissionId/{submissionId}")
+    public ResponseEntity<FormSubmissionResponseDto> getByOrganisationFormAndSubmission(
+            @PathVariable UUID organisationId,
+            @PathVariable UUID formId,
+            @PathVariable UUID submissionId
+    ) {
+        return service.getByOrganisationFormAndSubmission(organisationId, formId, submissionId)
                 .map(this::mapToDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<FormSubmission> update(@PathVariable UUID id, @RequestBody FormSubmission formSubmission) {
+    public ResponseEntity<FormSubmission> update(
+            @PathVariable UUID id,
+            @RequestBody FormSubmission formSubmission
+    ) {
         return ResponseEntity.ok(service.updateFormSubmission(id, formSubmission));
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {

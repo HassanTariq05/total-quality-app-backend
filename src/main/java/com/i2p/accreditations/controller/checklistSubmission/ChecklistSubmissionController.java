@@ -1,15 +1,13 @@
 package com.i2p.accreditations.controller.checklistSubmission;
 
-import com.i2p.accreditations.dto.ChecklistSubmissionCreateDto;
-import com.i2p.accreditations.dto.ChecklistSubmissionResponseDto;
-import com.i2p.accreditations.dto.OrganisationDto;
-import com.i2p.accreditations.dto.UserDto;
+import com.i2p.accreditations.dto.*;
 import com.i2p.accreditations.model.access.User;
 import com.i2p.accreditations.model.checklistSubmission.ChecklistSubmission;
 import com.i2p.accreditations.model.organisation.Organisation;
 import com.i2p.accreditations.repository.access.UserRepository;
 import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.checklistSubmission.ChecklistSubmissionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,14 +37,6 @@ public class ChecklistSubmissionController {
     ) {
         User submittedBy = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow();
-
-        // Check if a submission already exists for this checklist + organisation
-        boolean exists = service.existsByChecklistAndOrganisation(dto.getChecklistId(), dto.getOrganisationId());
-        if (exists) {
-            return ResponseEntity.status(409).body(
-                    Map.of("success", false, "message", "Submission already exists for this organisation")
-            );
-        }
 
         ChecklistSubmission submission = service.createChecklistSubmission(dto, submittedBy);
         ChecklistSubmissionResponseDto response = mapToDto(submission);
@@ -87,22 +77,115 @@ public class ChecklistSubmissionController {
         return ResponseEntity.ok(service.getAllChecklistSubmissions());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ChecklistSubmission> getById(@PathVariable UUID id) {
-        return service.getChecklistSubmissionById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/getBySubmissionId/{submissionId}")
+    public ResponseEntity<?> getById(@PathVariable UUID submissionId) {
+        try {
+            ChecklistSubmission submission = service.getBySubmissionId(submissionId);
+
+            if (submission == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("ChecklistSubmission not found for id: " + submissionId);
+            }
+
+            GetChecklistSubmissionDto dto = mapToSingleDto(submission);
+
+            return ResponseEntity.ok(dto);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred.");
+        }
     }
 
     @GetMapping("organisationId/{organisationId}/checklistId/{checklistId}")
-    public ResponseEntity<ChecklistSubmissionResponseDto> getByOrganisationAndChecklist(
+    public ResponseEntity<List<ChecklistSubmissionListDto>> getByOrganisationAndChecklist(
             @PathVariable UUID organisationId,
             @PathVariable UUID checklistId
     ) {
-        return service.getByOrganisationAndChecklist(organisationId, checklistId)
+        List<ChecklistSubmission> submissions = service.getByOrganisationAndChecklist(organisationId, checklistId);
+
+        if (submissions.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<ChecklistSubmissionListDto> dtoList = submissions.stream()
+                .map(this::mapToListDto)
+                .toList();
+
+        return ResponseEntity.ok(dtoList);
+    }
+
+
+    private ChecklistSubmissionListDto mapToListDto(ChecklistSubmission submission) {
+        ChecklistSubmissionListDto dto = new ChecklistSubmissionListDto();
+        dto.setId(submission.getId());
+        dto.setName(submission.getName());
+        dto.setDescription(submission.getDescription());
+        dto.setSubmittedAt(submission.getSubmittedAt());
+
+        Organisation org = submission.getOrganisation();
+        if (org != null) {
+            OrganisationDto orgDto = new OrganisationDto();
+            orgDto.setId(org.getId());
+            orgDto.setName(org.getName());
+            orgDto.setStatus(org.getStatus());
+            dto.setOrganisation(orgDto);
+        }
+
+        User user = submission.getSubmittedBy();
+        if (user != null) {
+            UserDto userDto = new UserDto();
+            userDto.setId(user.getId());
+            userDto.setName(user.getName());
+            userDto.setEmail(user.getEmail());
+            dto.setSubmittedBy(userDto);
+        }
+
+        return dto;
+    }
+
+    private GetChecklistSubmissionDto mapToSingleDto(ChecklistSubmission submission) {
+        GetChecklistSubmissionDto dto = new GetChecklistSubmissionDto();
+        dto.setId(submission.getId());
+        dto.setName(submission.getName());
+        dto.setData(submission.getData());
+        dto.setDescription(submission.getDescription());
+        dto.setSubmittedAt(submission.getSubmittedAt());
+        dto.setChecklistId(submission.getChecklist().getId());
+
+        Organisation org = submission.getOrganisation();
+        if (org != null) {
+            OrganisationDto orgDto = new OrganisationDto();
+            orgDto.setId(org.getId());
+            orgDto.setName(org.getName());
+            orgDto.setStatus(org.getStatus());
+            dto.setOrganisation(orgDto);
+        }
+
+        User user = submission.getSubmittedBy();
+        if (user != null) {
+            UserDto userDto = new UserDto();
+            userDto.setId(user.getId());
+            userDto.setName(user.getName());
+            userDto.setEmail(user.getEmail());
+            dto.setSubmittedBy(userDto);
+        }
+
+        return dto;
+    }
+
+
+    @GetMapping("organisationId/{organisationId}/checklistId/{checklistId}/submissionId/{submissionId}")
+    public ResponseEntity<ChecklistSubmissionResponseDto> getByOrganisationChecklistAndSubmission(
+            @PathVariable UUID organisationId,
+            @PathVariable UUID checklistId,
+            @PathVariable UUID submissionId
+    ) {
+        return service.getByOrganisationChecklistAndSubmission(organisationId, checklistId, submissionId)
                 .map(this::mapToDto)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.ok(new ChecklistSubmissionResponseDto()));
+                .orElse(ResponseEntity.notFound().build());
     }
 
 

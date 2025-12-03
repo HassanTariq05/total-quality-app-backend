@@ -20,6 +20,12 @@ public class ChecklistSubmission {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
     @ManyToOne
     @JoinColumn(name = "checklist_id", nullable = false)
     private Checklist checklist;

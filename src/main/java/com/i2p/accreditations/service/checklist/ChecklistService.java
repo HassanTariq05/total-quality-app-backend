@@ -6,6 +6,8 @@ import com.i2p.accreditations.model.checklist.Checklist;
 import com.i2p.accreditations.repository.chapter.ChapterRepository;
 import com.i2p.accreditations.repository.checklist.ChecklistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -44,8 +46,8 @@ public class ChecklistService {
         return repository.save(checklist);
     }
 
-    public List<Checklist> getAllChecklists(UUID chapterId) {
-        return repository.findByChapterId(chapterId);
+    public Page<Checklist> getAllChecklists(UUID chapterId, Pageable pageable) {
+        return repository.findByChapterId(chapterId, pageable);
     }
     public Optional<Checklist> getChecklistById(UUID id) {
         return repository.findByIdWithChapter(id);

@@ -28,9 +28,14 @@ public class ChecklistFormat {
     @Column(name = "format", columnDefinition = "TEXT")
     private String format;
 
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "checklist_id", referencedColumnName = "id")
+//    @JsonIgnoreProperties({"checklist_format"})
+//    private Checklist checklist;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "checklist_id", referencedColumnName = "id")
-    @JsonIgnoreProperties({"checklist_format"})
+    @JsonIgnoreProperties({"checklistFormats", "submissions"})
     private Checklist checklist;
 
     public ChecklistFormat() {}

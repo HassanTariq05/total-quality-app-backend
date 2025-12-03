@@ -4,11 +4,15 @@ import com.i2p.accreditations.dto.ChecklistSubmissionCreateDto;
 import com.i2p.accreditations.model.access.User;
 import com.i2p.accreditations.model.checklist.Checklist;
 import com.i2p.accreditations.model.checklistSubmission.ChecklistSubmission;
+import com.i2p.accreditations.model.formSubmission.FormSubmission;
 import com.i2p.accreditations.model.organisation.Organisation;
 import com.i2p.accreditations.repository.access.UserRepository;
 import com.i2p.accreditations.repository.checklist.ChecklistRepository;
 import com.i2p.accreditations.repository.checklistSubmission.ChecklistSubmissionRepository;
 import com.i2p.accreditations.repository.organisation.OrganisationRepository;
+import com.i2p.accreditations.service.checklistIdentifier.ChecklistIdentifierService;
+import com.i2p.accreditations.service.formIdentifier.FormIdentifierService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +29,9 @@ public class ChecklistSubmissionService {
     private final ChecklistRepository checklistRepo;
 
     private final UserRepository userRepo;
+
+    @Autowired
+    private ChecklistIdentifierService identifierService;
 
     public ChecklistSubmissionService(ChecklistSubmissionRepository repository, OrganisationRepository organisationRepository, ChecklistRepository checklistRepository, UserRepository userRepository) {
         this.repository = repository;
@@ -44,7 +51,9 @@ public class ChecklistSubmissionService {
         submission.setChecklist(checklist);
         submission.setOrganisation(organisation);
         submission.setSubmittedBy(submittedBy);
-        submission.setData(dto.getData());
+        submission.setName(dto.getName());
+        submission.setDescription(dto.getDescription());
+        submission.setData(null);
         submission.setSubmittedAt(LocalDateTime.now());
 
         return repository.save(submission);
@@ -54,24 +63,47 @@ public class ChecklistSubmissionService {
         return repository.existsByChecklistIdAndOrganisationId(checklistId, organisationId);
     }
 
-    public Optional<ChecklistSubmission> getByOrganisationAndChecklist(UUID organisationId, UUID checklistId) {
-        return repository.findByOrganisationIdAndChecklistId(organisationId, checklistId);
+    public List<ChecklistSubmission> getByOrganisationAndChecklist(UUID organisationId, UUID checklistId) {
+        return repository.findAllByOrganisationIdAndChecklistId(organisationId, checklistId);
     }
+
+    public ChecklistSubmission getBySubmissionId(UUID submissionId) {
+        return repository.findById(submissionId)
+                .orElse(null);
+    }
+
+    public Optional<ChecklistSubmission> getByOrganisationChecklistAndSubmission(
+            UUID organisationId,
+            UUID checklistId,
+            UUID submissionId
+    ) {
+        return repository.findByOrganisationIdAndChecklistIdAndId(organisationId, checklistId, submissionId);
+    }
+
 
     public List<ChecklistSubmission> getAllChecklistSubmissions() {
         return repository.findAll();
     }
 
-    public Optional<ChecklistSubmission> getChecklistSubmissionById(UUID id) {
-        return repository.findById(id);
-    }
+    public ChecklistSubmission updateChecklistSubmission(UUID id, ChecklistSubmission payload) {
+        return repository.findById(id)
+                .map(existing -> {
+                    if (payload.getName() != null) existing.setName(payload.getName());
+                    if (payload.getDescription() != null) existing.setDescription(payload.getDescription());
+                    if (payload.getData() != null) existing.setData(payload.getData());
+                    if (payload.getChecklist() != null) existing.setChecklist(payload.getChecklist());
+                    if (payload.getOrganisation() != null) existing.setOrganisation(payload.getOrganisation());
+                    if (payload.getSubmittedBy() != null) existing.setSubmittedBy(payload.getSubmittedBy());
 
-    public ChecklistSubmission updateChecklistSubmission(UUID id, ChecklistSubmission checklistSubmissionDetails) {
-        return repository.findById(id).map(existing -> {
-            existing.setData(checklistSubmissionDetails.getData());
-            existing.setSubmittedAt(LocalDateTime.now());
-            return repository.save(existing);
-        }).orElseThrow(() -> new RuntimeException("ChecklistSubmission not found with id " + id));
+                    existing.setSubmittedAt(LocalDateTime.now());
+
+                    ChecklistSubmission saved = repository.save(existing);
+
+                    identifierService.saveIdentifiersAsync(saved);
+
+                    return saved;
+                })
+                .orElseThrow(() -> new RuntimeException("ChecklistSubmission not found with id " + id));
     }
 
 
