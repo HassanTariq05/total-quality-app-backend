@@ -1,14 +1,18 @@
 package com.i2p.accreditations.service.policy;
 
 import com.i2p.accreditations.dto.PolicyDto;
+import com.i2p.accreditations.enums.PolicyVersionStatus;
 import com.i2p.accreditations.model.chapter.Chapter;
 import com.i2p.accreditations.model.policy.Policy;
+import com.i2p.accreditations.model.policyVersion.PolicyVersion;
 import com.i2p.accreditations.repository.chapter.ChapterRepository;
 import com.i2p.accreditations.repository.policy.PolicyRepository;
+import com.i2p.accreditations.repository.policyVersion.PolicyVersionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,20 +29,29 @@ public class PolicyService {
 
     private final ChapterRepository chapterRepository;
 
+    private final PolicyVersionRepository versionRepository;
+
     @Autowired
-    public PolicyService(PolicyRepository policyRepository, ChapterRepository chapterRepository) {
+    public PolicyService(PolicyRepository policyRepository, ChapterRepository chapterRepository, PolicyVersionRepository versionRepository) {
         this.chapterRepository = chapterRepository;
         this.repository = policyRepository;
+        this.versionRepository = versionRepository;
     }
 
-    // createPolicy
-    public Policy createPolicy(String title, String description, String status, UUID chapterId, MultipartFile document) throws IOException {
-        Long nextNumber = repository.findTopByOrderByNumberDesc()
-                .map(c -> c.getNumber() + 1)
+    @Transactional
+    public Policy createPolicy(
+            String title,
+            String description,
+            String status,
+            UUID chapterId,
+            MultipartFile document) throws IOException {
+
+        Long nextPolicyNumber = repository.findTopByOrderByNumberDesc()
+                .map(p -> p.getNumber() + 1)
                 .orElse(1L);
 
         Policy policy = new Policy();
-        policy.setNumber(nextNumber);
+        policy.setNumber(nextPolicyNumber);
         policy.setTitle(title);
         policy.setDescription(description);
         policy.setStatus(status);
@@ -51,10 +64,33 @@ public class PolicyService {
 
         if (document != null && !document.isEmpty()) {
             policy.setDocument(document.getBytes());
-            policy.setDocumentName(document.getOriginalFilename()); // <-- store filename
+            policy.setDocumentName(document.getOriginalFilename());
         }
 
-        return repository.save(policy);
+        policy = repository.save(policy);
+
+        createFirstVersion(policy, document);
+
+        return policy;
+    }
+
+    private void createFirstVersion(Policy policy, MultipartFile document) throws IOException {
+        PolicyVersion firstVersion = new PolicyVersion();
+        firstVersion.setNumber(1L);
+        firstVersion.setPolicy(policy);
+        firstVersion.setStatus(PolicyVersionStatus.DRAFT);
+        firstVersion.setTitle("1");
+        firstVersion.setDescription(policy.getDescription());
+
+        if (document != null && !document.isEmpty()) {
+            firstVersion.setDocument(document.getBytes());
+            firstVersion.setDocumentName(document.getOriginalFilename());
+        } else if (policy.getDocument() != null) {
+            firstVersion.setDocument(policy.getDocument().clone());
+            firstVersion.setDocumentName(policy.getDocumentName());
+        }
+
+        versionRepository.save(firstVersion);
     }
 
     // updatePolicy

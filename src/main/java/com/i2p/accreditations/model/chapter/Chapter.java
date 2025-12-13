@@ -1,12 +1,18 @@
 package com.i2p.accreditations.model.chapter;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.i2p.accreditations.model.accreditation.Accreditation;
+import com.i2p.accreditations.model.checklist.Checklist;
+import com.i2p.accreditations.model.form.Form;
+import com.i2p.accreditations.model.policy.Policy;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -36,6 +42,18 @@ public class Chapter {
     @JoinColumn(name = "accreditation_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"chapters"})
     private Accreditation accreditation;
+
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Form> forms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Checklist> checklists = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Policy> policies = new ArrayList<>();
 
 
     public Chapter() {}

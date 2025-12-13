@@ -1,11 +1,16 @@
 package com.i2p.accreditations.model.policy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.i2p.accreditations.model.chapter.Chapter;
+import com.i2p.accreditations.model.policyVersion.PolicyVersion;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -41,7 +46,11 @@ public class Policy {
     private byte[] document;
 
     @Column(name = "document_name")
-    private String documentName; // <-- new column for filename
+    private String documentName;
+
+    @OneToMany(mappedBy = "policy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<PolicyVersion> policyVersions = new ArrayList<>();
 
     public Policy() {}
 
