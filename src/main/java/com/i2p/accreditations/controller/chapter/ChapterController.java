@@ -6,6 +6,7 @@ import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.chapter.ChapterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
@@ -22,16 +23,19 @@ public class ChapterController {
         this.service = service;
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_CREATE_CHAPTER')")
     @PostMapping
     public ResponseEntity<Chapter> create(@RequestBody ChapterDto chapterDto) {
         return ResponseEntity.ok(service.createChapter(chapterDto));
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_CHAPTER')")
     @GetMapping("/getAllByAccreditationId/{id}")
     public ResponseEntity<List<Chapter>> getAllByAccreditationId(@PathVariable("id") UUID accreditationId) {
         return ResponseEntity.ok(service.getAllChapters(accreditationId));
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_CHAPTER')")
     @GetMapping("/{id}")
     public ResponseEntity<Chapter> getById(@PathVariable UUID id) {
         return service.getChapterById(id)
@@ -39,11 +43,13 @@ public class ChapterController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_EDIT_CHAPTER')")
     @PutMapping("/{id}")
     public ResponseEntity<Chapter> update(@PathVariable UUID id, @RequestBody Chapter chapter) {
         return ResponseEntity.ok(service.updateChapter(id, chapter));
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_DELETE_CHAPTER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.deleteChapter(id);

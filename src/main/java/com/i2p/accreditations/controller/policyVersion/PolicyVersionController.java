@@ -10,6 +10,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
@@ -22,11 +23,13 @@ public class PolicyVersionController {
     @Autowired
     private PolicyVersionService versionService;
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_POLICY_VERSION')")
     @GetMapping
     public ResponseEntity<List<PolicyVersionDto>> getAllVersions(@RequestParam UUID policyId) {
         return ResponseEntity.ok(versionService.getVersionsByPolicyId(policyId));
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_POLICY_VERSION')")
     @GetMapping("/{policyVersionId}")
     public ResponseEntity<PolicyVersion> getVersionById(@PathVariable UUID policyVersionId) {
         PolicyVersion version = versionService.getVersionById(policyVersionId);
@@ -35,12 +38,14 @@ public class PolicyVersionController {
                 : ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_POLICY_VERSION')")
     @GetMapping("/latest")
     public ResponseEntity<PolicyVersionDto> getLatestVersion(@RequestParam UUID policyId) {
         PolicyVersionDto version = versionService.getLatestVersion(policyId);
         return version != null ? ResponseEntity.ok(version) : ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_POLICY_VERSION')")
     @GetMapping("/number/{versionNumber}")
     public ResponseEntity<PolicyVersionDto> getVersionByNumber(
             @RequestParam UUID policyId,
@@ -49,6 +54,7 @@ public class PolicyVersionController {
         return version != null ? ResponseEntity.ok(version) : ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_CLONE_POLICY_VERSION')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PolicyVersionDto> createVersion(
             @RequestParam UUID policyId,
@@ -61,6 +67,7 @@ public class PolicyVersionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_CLONE_POLICY_VERSION')")
     @PostMapping(value = "/cloneLastest")
     public ResponseEntity<PolicyVersionDto> cloneLatestVersion(@RequestParam UUID policyId) {
         try {
@@ -71,6 +78,7 @@ public class PolicyVersionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_EDIT_POLICY_VERSION')")
     @PutMapping(value = "/{versionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PolicyVersionDto> updateVersion(
             @PathVariable UUID versionId,
@@ -83,6 +91,7 @@ public class PolicyVersionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_POLICY_VERSION')")
     @GetMapping("/{versionId}/document")
     public ResponseEntity<ByteArrayResource> downloadDocument(@PathVariable UUID versionId) {
         PolicyVersion version = versionService.getVersionEntity(versionId);
@@ -99,6 +108,8 @@ public class PolicyVersionController {
                 .body(resource);
     }
 
+
+    @PreAuthorize("hasAuthority('PERMISSION_DELETE_POLICY_VERSION')")
     @DeleteMapping("/{versionId}")
     public ResponseEntity<Void> deleteVersion(@PathVariable UUID versionId) {
         try {
@@ -107,26 +118,5 @@ public class PolicyVersionController {
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @PostMapping("/{versionId}/send-for-approval")
-    public ResponseEntity<PolicyVersionDto> sendForApproval(
-            @PathVariable UUID versionId) {
-        return ResponseEntity.ok(versionService.sendForApproval(versionId));
-    }
-
-    @PostMapping("/{versionId}/approve")
-    public ResponseEntity<PolicyVersionDto> approveVersion(@PathVariable UUID versionId) {
-        return ResponseEntity.ok(versionService.approveVersion(versionId));
-    }
-
-    @PostMapping("/{versionId}/reject")
-    public ResponseEntity<PolicyVersionDto> reject(@PathVariable UUID versionId) {
-        return ResponseEntity.ok(versionService.reject(versionId));
-    }
-
-    @PostMapping("/{versionId}/send-for-revision")
-    public ResponseEntity<PolicyVersionDto> sendForRevision(@PathVariable UUID versionId) {
-        return ResponseEntity.ok(versionService.sendForRevision(versionId));
     }
 }

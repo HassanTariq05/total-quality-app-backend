@@ -9,6 +9,7 @@ import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.formSubmission.FormSubmissionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ public class FormSubmissionController {
         this.userRepository = userRepository;
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_CREATE_FORM_SUBMISSION')")
     @PostMapping
     public ResponseEntity<?> create(
             @RequestBody FormSubmissionCreateDto dto,
@@ -73,11 +75,14 @@ public class FormSubmissionController {
     }
 
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_FORM_SUBMISSION')")
     @GetMapping
     public ResponseEntity<List<FormSubmission>> getAll() {
         return ResponseEntity.ok(service.getAllFormSubmissions());
     }
 
+
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_FORM_SUBMISSION')")
     @GetMapping("/getBySubmissionId/{submissionId}")
     public ResponseEntity<?> getById(@PathVariable UUID submissionId) {
         try {
@@ -101,6 +106,7 @@ public class FormSubmissionController {
 
 
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_FORM_SUBMISSION')")
     @GetMapping("organisationId/{organisationId}/formId/{formId}")
     public ResponseEntity<List<FormSubmissionListDto>> getByOrganisationAndForm(
             @PathVariable UUID organisationId,
@@ -179,6 +185,7 @@ public class FormSubmissionController {
     }
 
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_FORM_SUBMISSION')")
     @GetMapping("organisationId/{organisationId}/formId/{formId}/submissionId/{submissionId}")
     public ResponseEntity<FormSubmissionResponseDto> getByOrganisationFormAndSubmission(
             @PathVariable UUID organisationId,
@@ -191,6 +198,7 @@ public class FormSubmissionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_EDIT_FORM_SUBMISSION')")
     @PutMapping("/{id}")
     public ResponseEntity<FormSubmission> update(
             @PathVariable UUID id,
@@ -200,6 +208,7 @@ public class FormSubmissionController {
     }
 
 
+    @PreAuthorize("hasAuthority('PERMISSION_DELETE_FORM_SUBMISSION')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.deleteFormSubmission(id);

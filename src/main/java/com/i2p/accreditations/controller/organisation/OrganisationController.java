@@ -4,13 +4,14 @@ import com.i2p.accreditations.model.organisation.Organisation;
 import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.organisation.OrganisationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/organisations")
-@ProtectedEndpoint
+@RequestMapping("/api/organizations")
+@PreAuthorize("hasRole('Super Admin')")
 public class OrganisationController {
 
     private final OrganisationService service;

@@ -9,6 +9,7 @@ import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.checklistSubmission.ChecklistSubmissionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ public class ChecklistSubmissionController {
         this.userRepository = userRepository;
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_CREATE_CHECKLIST_SUBMISSION')")
     @PostMapping
     public ResponseEntity<?> create(
             @RequestBody ChecklistSubmissionCreateDto dto,
@@ -72,11 +74,13 @@ public class ChecklistSubmissionController {
     }
 
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_CHECKLIST_SUBMISSION')")
     @GetMapping
     public ResponseEntity<List<ChecklistSubmission>> getAll() {
         return ResponseEntity.ok(service.getAllChecklistSubmissions());
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_CHECKLIST_SUBMISSION')")
     @GetMapping("/getBySubmissionId/{submissionId}")
     public ResponseEntity<?> getById(@PathVariable UUID submissionId) {
         try {
@@ -98,6 +102,7 @@ public class ChecklistSubmissionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_CHECKLIST_SUBMISSION')")
     @GetMapping("organisationId/{organisationId}/checklistId/{checklistId}")
     public ResponseEntity<List<ChecklistSubmissionListDto>> getByOrganisationAndChecklist(
             @PathVariable UUID organisationId,
@@ -176,6 +181,7 @@ public class ChecklistSubmissionController {
     }
 
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_CHECKLIST_SUBMISSION')")
     @GetMapping("organisationId/{organisationId}/checklistId/{checklistId}/submissionId/{submissionId}")
     public ResponseEntity<ChecklistSubmissionResponseDto> getByOrganisationChecklistAndSubmission(
             @PathVariable UUID organisationId,
@@ -188,12 +194,13 @@ public class ChecklistSubmissionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
+    @PreAuthorize("hasAuthority('PERMISSION_EDIT_CHECKLIST_SUBMISSION')")
     @PutMapping("/{id}")
     public ResponseEntity<ChecklistSubmission> update(@PathVariable UUID id, @RequestBody ChecklistSubmission checklistSubmission) {
         return ResponseEntity.ok(service.updateChecklistSubmission(id, checklistSubmission));
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_DELETE_CHECKLIST_SUBMISSION')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.deleteChecklistSubmission(id);

@@ -6,6 +6,7 @@ import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.checklistFormat.ChecklistFormatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -22,23 +23,27 @@ public class ChecklistFormatController {
         this.service = service;
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_CREATE_CHECKLIST')")
     @PostMapping
     public ResponseEntity<ChecklistFormat> create(@RequestBody ChecklistFormatDto formDto) {
         return ResponseEntity.ok(service.createChecklistFormat(formDto));
     }
 
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_CHECKLIST')")
     @GetMapping("/getChecklistFormatByChecklistId/{id}")
     public ResponseEntity<ChecklistFormat> getChecklistFormatByFormId(@PathVariable("id") UUID checklistId) {
         ChecklistFormat checklistFormat = service.getChecklistFormatByFormId(checklistId);
         return ResponseEntity.ok(checklistFormat);
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_EDIT_CHECKLIST')")
     @PutMapping("/{id}")
     public ResponseEntity<ChecklistFormat> update(@PathVariable UUID id, @RequestBody ChecklistFormat checklistFormat) {
         return ResponseEntity.ok(service.updateChecklistFormat(id, checklistFormat));
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_DELETE_CHECKLIST')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.deleteChecklistFormat(id);

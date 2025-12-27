@@ -4,9 +4,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-@PreAuthorize("isAuthenticated()")
 public @interface ProtectedEndpoint {
 }

@@ -33,6 +33,8 @@ public class OrganisationService {
         return repository.findById(id).map(organisation -> {
             organisation.setName(organisationDetails.getName());
             organisation.setDescription(organisationDetails.getDescription());
+            organisation.setEmail(organisationDetails.getEmail());
+            organisation.setPhoneNumber(organisationDetails.getPhoneNumber());
             organisation.setStatus(organisationDetails.getStatus());
             return repository.save(organisation);
         }).orElseThrow(() -> new RuntimeException("Organisation not found with id " + id));

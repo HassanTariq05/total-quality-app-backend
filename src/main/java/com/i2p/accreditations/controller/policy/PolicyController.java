@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ public class PolicyController {
         this.service = service;
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_CREATE_POLICY')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Policy> create(
             @RequestParam("title") String title,
@@ -40,6 +42,7 @@ public class PolicyController {
 
 
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_POLICY')")
     @GetMapping("/getAllByChapterId/{id}")
     public ResponseEntity<Page<Policy>> getAllByChapterId(
             @PathVariable("id") UUID chapterId,
@@ -50,6 +53,7 @@ public class PolicyController {
         return ResponseEntity.ok(service.getAllPolicys(chapterId, pageable));
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_POLICY')")
     @GetMapping("/{id}")
     public ResponseEntity<Policy> getById(@PathVariable UUID id) {
         return service.getPolicyById(id)
@@ -57,6 +61,7 @@ public class PolicyController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_EDIT_POLICY')")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Policy> update(
             @PathVariable UUID id,
@@ -70,7 +75,7 @@ public class PolicyController {
     }
 
 
-
+    @PreAuthorize("hasAuthority('PERMISSION_DELETE_POLICY')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.deletePolicy(id);

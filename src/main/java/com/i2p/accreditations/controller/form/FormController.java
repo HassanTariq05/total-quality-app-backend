@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
         import java.util.List;
 import java.util.UUID;
@@ -26,11 +27,13 @@ public class FormController {
         this.service = service;
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_CREATE_FORM')")
     @PostMapping
     public ResponseEntity<Form> create(@RequestBody FormDto formDto) {
         return ResponseEntity.ok(service.createForm(formDto));
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_FORM')")
     @GetMapping("/getAllByChapterId/{id}")
     public ResponseEntity<Page<Form>> getAllByChapterId(
             @PathVariable("id") UUID chapterId,
@@ -41,6 +44,7 @@ public class FormController {
         return ResponseEntity.ok(service.getAllForms(chapterId, pageable));
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_FORM')")
     @GetMapping("/{id}")
     public ResponseEntity<Form> getById(@PathVariable UUID id) {
         return service.getFormById(id)
@@ -48,11 +52,14 @@ public class FormController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAuthority('PERMISSION_EDIT_FORM')")
     @PutMapping("/{id}")
     public ResponseEntity<Form> update(@PathVariable UUID id, @RequestBody Form form) {
         return ResponseEntity.ok(service.updateForm(id, form));
     }
 
+
+    @PreAuthorize("hasAuthority('PERMISSION_DELETE_FORM')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.deleteForm(id);
