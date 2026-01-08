@@ -1,5 +1,6 @@
 package com.i2p.accreditations.model.formSubmission;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.i2p.accreditations.model.access.User;
 import com.i2p.accreditations.model.form.Form;
 import com.i2p.accreditations.model.organisation.Organisation;
@@ -30,8 +31,9 @@ public class FormSubmission {
     @JoinColumn(name = "form_id", nullable = false)
     private Form form;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organisation_id")
+    @JsonIgnore
     private Organisation organisation;
 
     @ManyToOne

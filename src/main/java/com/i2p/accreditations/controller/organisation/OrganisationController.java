@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/organizations")
-@PreAuthorize("hasRole('Super Admin')")
 public class OrganisationController {
 
     private final OrganisationService service;
@@ -19,18 +18,21 @@ public class OrganisationController {
     public OrganisationController(OrganisationService service) {
         this.service = service;
     }
-
+    
     @PostMapping
+    @PreAuthorize("hasRole('Super Admin')")
     public ResponseEntity<Organisation> create(@RequestBody Organisation organisation) {
         return ResponseEntity.ok(service.createOrganisation(organisation));
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('Super Admin')")
     public ResponseEntity<List<Organisation>> getAll() {
         return ResponseEntity.ok(service.getAllOrganisations());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('Super Admin','Administrator')")
     public ResponseEntity<Organisation> getById(@PathVariable UUID id) {
         return service.getOrganisationById(id)
                 .map(ResponseEntity::ok)
@@ -38,11 +40,14 @@ public class OrganisationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Organisation> update(@PathVariable UUID id, @RequestBody Organisation organisation) {
+    @PreAuthorize("hasAnyRole('Super Admin','Administrator')")
+    public ResponseEntity<Organisation> update(
+            @PathVariable UUID id,
+            @RequestBody Organisation organisation) {
         return ResponseEntity.ok(service.updateOrganisation(id, organisation));
     }
-
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('Super Admin','Administrator')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.deleteOrganisation(id);
         return ResponseEntity.noContent().build();

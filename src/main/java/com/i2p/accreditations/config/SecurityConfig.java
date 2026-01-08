@@ -58,7 +58,8 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://tqa-frontend.vercel.app"
+                "https://tqa-frontend.vercel.app",
+                "http://192.168.100.117:5173"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

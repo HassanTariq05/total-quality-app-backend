@@ -1,5 +1,6 @@
 package com.i2p.accreditations.model.checklistSubmission;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.i2p.accreditations.model.access.User;
 import com.i2p.accreditations.model.checklist.Checklist;
 import com.i2p.accreditations.model.form.Form;
@@ -30,8 +31,9 @@ public class ChecklistSubmission {
     @JoinColumn(name = "checklist_id", nullable = false)
     private Checklist checklist;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organisation_id")
+    @JsonIgnore
     private Organisation organisation;
 
     @ManyToOne

@@ -57,6 +57,33 @@ public class AuthController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('Super Admin', 'Administrator')")
+    @GetMapping("/users/org/{orgId}")
+    public ResponseEntity<?> getUsersByOrgId(@PathVariable UUID orgId) {
+
+        if (!organisationRepository.existsById(orgId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Organisation not found"
+                    ));
+        }
+
+        List<User> users = userRepo.findByOrganisationId(orgId);
+
+        List<Map<String, Object>> response = users.stream()
+                .map(this::mapUserResponse)
+                .toList();
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "success", true,
+                        "message", "Users fetched successfully",
+                        "users", response
+                )
+        );
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterUserRequestDto req) {
 
@@ -138,7 +165,7 @@ public class AuthController {
         );
     }
 
-    @PreAuthorize("hasRole('Super Admin')")
+    @PreAuthorize("hasAnyRole('Super Admin', 'Administrator')")
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(
             @PathVariable UUID id,
@@ -179,7 +206,6 @@ public class AuthController {
         if (req.getPassword() != null && !req.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(req.getPassword()));
         }
-        // If password is "" or null → ignore (keep existing password)
 
         User updatedUser = userRepo.save(user);
 

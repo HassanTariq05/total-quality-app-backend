@@ -1,6 +1,10 @@
 package com.i2p.accreditations.model.role;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.i2p.accreditations.enums.Permission;
+import com.i2p.accreditations.model.organisation.Organisation;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +22,7 @@ import java.util.UUID;
 @Setter
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "roles")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Role {
 
     @Id
@@ -45,4 +50,9 @@ public class Role {
     @CollectionTable(name = "role_permissions", joinColumns = @JoinColumn(name = "role_id"))
     @Column(name = "permission")
     private Set<Permission> permissions = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organisation_id")
+    @JsonIgnore
+    private Organisation organisation;
 }

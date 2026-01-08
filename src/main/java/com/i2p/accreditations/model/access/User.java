@@ -1,5 +1,6 @@
 package com.i2p.accreditations.model.access;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.i2p.accreditations.model.organisation.Organisation;
 import com.i2p.accreditations.model.role.Role;
 import jakarta.persistence.*;
@@ -40,5 +41,6 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organisation_id")
+    @JsonIgnore
     private Organisation organisation;
 }

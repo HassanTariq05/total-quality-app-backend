@@ -78,7 +78,7 @@ public class PolicyVersionController {
         }
     }
 
-    @PreAuthorize("hasAuthority('PERMISSION_EDIT_POLICY_VERSION')")
+    @PreAuthorize("hasAnyAuthority('PERMISSION_EDIT_POLICY_VERSION', 'PERMISSION_REVIEW_POLICY_VERSION')")
     @PutMapping(value = "/{versionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PolicyVersionDto> updateVersion(
             @PathVariable UUID versionId,
