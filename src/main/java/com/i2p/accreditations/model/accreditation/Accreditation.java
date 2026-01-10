@@ -1,13 +1,17 @@
 package com.i2p.accreditations.model.accreditation;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.i2p.accreditations.model.chapter.Chapter;
+import com.i2p.accreditations.model.organisation.Organisation;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -29,6 +33,10 @@ public class Accreditation {
 
     @Column(nullable = false)
     private String status;
+
+    @ManyToMany(mappedBy = "accreditations")
+    @JsonBackReference
+    private Set<Organisation> organisations = new HashSet<>();
 
     public Accreditation() {}
 

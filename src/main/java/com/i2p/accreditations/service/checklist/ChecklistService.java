@@ -46,8 +46,11 @@ public class ChecklistService {
         return repository.save(checklist);
     }
 
-    public Page<Checklist> getAllChecklists(UUID chapterId, Pageable pageable) {
-        return repository.findByChapterId(chapterId, pageable);
+    public Page<Checklist> getAllChecklists(UUID chapterId,String keyword, Pageable pageable) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return repository.findByChapterId(chapterId, pageable);
+        }
+        return repository.findByChapterIdAndKeyword(chapterId, keyword.trim(), pageable);
     }
     public Optional<Checklist> getChecklistById(UUID id) {
         return repository.findByIdWithChapter(id);

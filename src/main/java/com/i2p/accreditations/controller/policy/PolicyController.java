@@ -47,10 +47,11 @@ public class PolicyController {
     public ResponseEntity<Page<Policy>> getAllByChapterId(
             @PathVariable("id") UUID chapterId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(service.getAllPolicys(chapterId, pageable));
+        return ResponseEntity.ok(service.getAllPolicys(chapterId, keyword, pageable));
     }
 
     @PreAuthorize("hasAuthority('PERMISSION_VIEW_POLICY')")

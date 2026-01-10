@@ -3,6 +3,8 @@ package com.i2p.accreditations.model.organisation;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.i2p.accreditations.model.accreditation.Accreditation;
 import com.i2p.accreditations.model.role.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -52,4 +54,13 @@ public class Organisation {
     @OneToMany(mappedBy = "organisation", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Role> roles;
+
+    @ManyToMany
+    @JoinTable(
+            name = "organisation_accreditations",
+            joinColumns = @JoinColumn(name = "organisation_id"),
+            inverseJoinColumns = @JoinColumn(name = "accreditation_id")
+    )
+    @JsonManagedReference
+    private Set<Accreditation> accreditations = new HashSet<>();
 }

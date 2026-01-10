@@ -57,8 +57,12 @@ public class FormSubmissionService {
         return repository.save(submission);
     }
 
-    public List<FormSubmission> getByOrganisationAndForm(UUID organisationId, UUID formId) {
-        return repository.findAllByOrganisationIdAndFormId(organisationId, formId);
+    public List<FormSubmission> getByOrganisationAndForm(UUID organisationId,String keyword, UUID formId) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return repository.findAllByOrganisationIdAndFormId(organisationId, formId);
+        }
+        return repository.findAllByOrganisationIdAndFormIdAndKeyword(organisationId, formId, keyword);
+
     }
 
     public FormSubmission getBySubmissionId(UUID submissionId) {

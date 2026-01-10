@@ -106,9 +106,10 @@ public class ChecklistSubmissionController {
     @GetMapping("organisationId/{organisationId}/checklistId/{checklistId}")
     public ResponseEntity<List<ChecklistSubmissionListDto>> getByOrganisationAndChecklist(
             @PathVariable UUID organisationId,
-            @PathVariable UUID checklistId
+            @PathVariable UUID checklistId,
+            @RequestParam(required = false) String keyword
     ) {
-        List<ChecklistSubmission> submissions = service.getByOrganisationAndChecklist(organisationId, checklistId);
+        List<ChecklistSubmission> submissions = service.getByOrganisationAndChecklist(organisationId, keyword, checklistId);
 
         if (submissions.isEmpty()) {
             return ResponseEntity.notFound().build();

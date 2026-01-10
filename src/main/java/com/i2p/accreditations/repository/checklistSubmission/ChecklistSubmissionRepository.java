@@ -3,6 +3,8 @@ package com.i2p.accreditations.repository.checklistSubmission;
 import com.i2p.accreditations.model.checklistSubmission.ChecklistSubmission;
 import com.i2p.accreditations.model.formSubmission.FormSubmission;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,6 +16,16 @@ public interface ChecklistSubmissionRepository extends JpaRepository<ChecklistSu
     boolean existsByChecklistIdAndOrganisationId(UUID checklistId, UUID organisationId);
 
     List<ChecklistSubmission> findAllByOrganisationIdAndChecklistId(UUID organisationId, UUID checklistId);
+
+    @Query("SELECT cs FROM ChecklistSubmission cs " +
+            "WHERE cs.organisation.id = :organisationId " +
+            "AND cs.checklist.id = :checklistId " +
+            "AND LOWER(cs.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<ChecklistSubmission> findAllByOrganisationIdAndChecklistIdAndKeyword(
+            @Param("organisationId") UUID organisationId,
+            @Param("checklistId") UUID checklistId,
+            @Param("keyword") String keyword
+    );
 
     Optional<ChecklistSubmission> findByOrganisationIdAndChecklistIdAndId(
             UUID organisationId,

@@ -16,6 +16,14 @@ import java.util.UUID;
 public interface FormRepository extends JpaRepository<Form, UUID> {
     Optional<Form> findTopByOrderByNumberDesc();
     Page<Form> findByChapterId(UUID chapterId, Pageable pageable);
+
+    @Query("SELECT f FROM Form f WHERE f.chapter.id = :chapterId " +
+            "AND (:keyword IS NULL OR LOWER(f.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) ")
+    Page<Form> findByChapterIdAndKeyword(
+            @Param("chapterId") UUID chapterId,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
     @Query("SELECT f FROM Form f JOIN FETCH f.chapter c JOIN FETCH c.accreditation a WHERE f.id = :id ")
     Optional<Form> findByIdWithChapter(@Param("id") UUID id);
 }

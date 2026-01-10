@@ -21,7 +21,8 @@ public class AccreditationController {
         this.service = service;
     }
 
-    @PreAuthorize("hasAuthority('PERMISSION_CREATE_ACCREDITATION')")
+//    @PreAuthorize("hasAuthority('PERMISSION_CREATE_ACCREDITATION')")
+    @PreAuthorize("hasRole('Super Admin')")
     @PostMapping
     public ResponseEntity<Accreditation> create(@RequestBody Accreditation accreditation) {
         return ResponseEntity.ok(service.createAccreditation(accreditation));

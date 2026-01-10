@@ -63,8 +63,11 @@ public class ChecklistSubmissionService {
         return repository.existsByChecklistIdAndOrganisationId(checklistId, organisationId);
     }
 
-    public List<ChecklistSubmission> getByOrganisationAndChecklist(UUID organisationId, UUID checklistId) {
-        return repository.findAllByOrganisationIdAndChecklistId(organisationId, checklistId);
+    public List<ChecklistSubmission> getByOrganisationAndChecklist(UUID organisationId, String keyword, UUID checklistId) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return repository.findAllByOrganisationIdAndChecklistId(organisationId, checklistId);
+        }
+        return repository.findAllByOrganisationIdAndChecklistIdAndKeyword(organisationId, checklistId, keyword);
     }
 
     public ChecklistSubmission getBySubmissionId(UUID submissionId) {

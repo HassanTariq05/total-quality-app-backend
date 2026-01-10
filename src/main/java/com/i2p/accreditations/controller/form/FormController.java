@@ -38,10 +38,12 @@ public class FormController {
     public ResponseEntity<Page<Form>> getAllByChapterId(
             @PathVariable("id") UUID chapterId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(service.getAllForms(chapterId, pageable));
+        Page<Form> forms = service.getAllForms(chapterId, keyword, pageable);
+        return ResponseEntity.ok(forms);
     }
 
     @PreAuthorize("hasAuthority('PERMISSION_VIEW_FORM')")

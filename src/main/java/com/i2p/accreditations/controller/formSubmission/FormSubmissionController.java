@@ -110,9 +110,10 @@ public class FormSubmissionController {
     @GetMapping("organisationId/{organisationId}/formId/{formId}")
     public ResponseEntity<List<FormSubmissionListDto>> getByOrganisationAndForm(
             @PathVariable UUID organisationId,
-            @PathVariable UUID formId
+            @PathVariable UUID formId,
+            @RequestParam(required = false) String keyword
     ) {
-        List<FormSubmission> submissions = service.getByOrganisationAndForm(organisationId, formId);
+        List<FormSubmission> submissions = service.getByOrganisationAndForm(organisationId,keyword, formId);
 
         if (submissions.isEmpty()) {
             return ResponseEntity.notFound().build();

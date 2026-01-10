@@ -1,5 +1,7 @@
 package com.i2p.accreditations.controller.organisation;
 
+import com.i2p.accreditations.dto.OrganisationRequestDto;
+import com.i2p.accreditations.model.accreditation.Accreditation;
 import com.i2p.accreditations.model.organisation.Organisation;
 import com.i2p.accreditations.security.annotations.ProtectedEndpoint;
 import com.i2p.accreditations.service.organisation.OrganisationService;
@@ -18,11 +20,21 @@ public class OrganisationController {
     public OrganisationController(OrganisationService service) {
         this.service = service;
     }
-    
+
     @PostMapping
     @PreAuthorize("hasRole('Super Admin')")
-    public ResponseEntity<Organisation> create(@RequestBody Organisation organisation) {
+    public ResponseEntity<Organisation> create(@RequestBody OrganisationRequestDto organisation) {
         return ResponseEntity.ok(service.createOrganisation(organisation));
+    }
+
+    @GetMapping("/{orgId}/accreditations")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW_ACCREDITATION')")
+    public ResponseEntity<List<Accreditation>> getAccreditationsByOrganization(
+            @PathVariable UUID orgId) {
+
+        List<Accreditation> accreditations = service.getAccreditationsByOrganisationIdEfficient(orgId);
+
+        return ResponseEntity.ok(accreditations);
     }
 
     @GetMapping
@@ -43,9 +55,10 @@ public class OrganisationController {
     @PreAuthorize("hasAnyRole('Super Admin','Administrator')")
     public ResponseEntity<Organisation> update(
             @PathVariable UUID id,
-            @RequestBody Organisation organisation) {
-        return ResponseEntity.ok(service.updateOrganisation(id, organisation));
+            @RequestBody OrganisationRequestDto dto) {
+        return ResponseEntity.ok(service.updateOrganisation(id, dto));
     }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('Super Admin','Administrator')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {

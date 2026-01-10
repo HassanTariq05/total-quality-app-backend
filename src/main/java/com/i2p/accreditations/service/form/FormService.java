@@ -51,8 +51,11 @@ public class FormService {
         return repository.save(form);
     }
 
-    public Page<Form> getAllForms(UUID chapterId, Pageable pageable) {
-        return repository.findByChapterId(chapterId, pageable);
+    public Page<Form> getAllForms(UUID chapterId, String keyword, Pageable pageable) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return repository.findByChapterId(chapterId, pageable);
+        }
+        return repository.findByChapterIdAndKeyword(chapterId, keyword.trim(), pageable);
     }
     public Optional<Form> getFormById(UUID id) {
         return repository.findByIdWithChapter(id);
